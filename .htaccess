@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# https://deine-domain.de/EF           -> index.php?code=EF
+# https://deine-domain.de/EF/presenter -> presenter.php?code=EF
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([A-Za-z0-9_-]+)/presenter/?$ presenter.php?code=$1 [L,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([A-Za-z0-9_-]+)/?$ index.php?code=$1 [L,QSA]

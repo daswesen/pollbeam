@@ -1,0 +1,6 @@
+# Enthält echte Zugangsdaten -- niemals committen
+config.php
+
+# Diverses
+.DS_Store
+*.log
