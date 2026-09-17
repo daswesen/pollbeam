@@ -1,86 +1,85 @@
 # PollBeam
 
-Ein sehr einfaches, selbstgehostetes Live-Umfrage-Tool -- eine schlanke Alternative zu Slido/Mentimeter für den eigenen Webspace. Läuft auf gewöhnlichem PHP/MySQL-Shared-Hosting, ganz ohne Node.js, WebSockets oder Build-Prozess. Die Aktualisierung im Browser läuft per Polling (alle 2 Sekunden), das reicht für Vorlesungen, Vorträge und Workshops locker aus.
+A very simple, self-hosted live polling tool -- a lightweight alternative to Slido/Mentimeter for your own web space. Runs on ordinary PHP/MySQL shared hosting, no Node.js, WebSockets, or build step required. The browser updates via polling (every 2 seconds), which is plenty for lectures, talks, and workshops.
 
-Zwei Umfragetypen:
-- **Auswahlantworten** -- klassische Multiple-Choice-Umfrage mit Live-Balkendiagramm
-- **Freie Texteingabe** -- Teilnehmer schreiben eigene Antworten, die live als Liste einlaufen (z. B. "Was habt ihr heute gelernt?")
+Two poll types:
+- **Choice answers** -- classic multiple-choice poll with a live bar chart
+- **Free text** -- participants type their own answers, which stream in live as a list (e.g. "What did you learn today?")
 
-Mehrfachantworten sind bewusst erlaubt -- es gibt keine Sperre gegen mehrfaches Abstimmen.
+Multiple submissions per participant are allowed by design -- there's no lock against voting more than once.
 
-## Warum
+## Why
 
-Für den gelegentlichen Einsatz in Vorlesung oder Vortrag reicht ein sehr einfaches Werkzeug. Wer ohnehin Webspace hat, muss dafür keinen weiteren Cloud-Dienst abonnieren oder Node.js aufsetzen.
+For occasional use in a lecture or talk, a very simple tool is enough. If you already have web space, there's no need to subscribe to another cloud service or set up Node.js for it.
 
-## Voraussetzungen
+## Requirements
 
-- PHP 7.4+ mit PDO/MySQL-Erweiterung
-- Eine MySQL-Datenbank
-- Apache mit `mod_rewrite` (für die kurzen Teilnehmer-Links -- optional, siehe unten)
+- PHP 7.4+ with the PDO/MySQL extension
+- A MySQL database
+- Apache with `mod_rewrite` (for the short participant links -- optional, see below)
 
-Getestet auf gewöhnlichem netcup-/Plesk-Shared-Hosting, sollte aber auf jedem klassischen PHP-Webspace laufen.
+Tested on ordinary netcup/Plesk shared hosting, but should run on any classic PHP web space.
 
 ## Installation
 
-1. Repository klonen bzw. Dateien per FTP in einen Ordner deines Webspace hochladen.
-2. Eine MySQL-Datenbank anlegen und `schema.sql` importieren (z. B. per phpMyAdmin).
-3. `config.example.php` nach `config.php` kopieren und die eigenen Zugangsdaten eintragen:
+1. Clone the repository or upload the files to a folder on your web space via FTP.
+2. Create a MySQL database and import `schema.sql` (e.g. via phpMyAdmin).
+3. Copy `config.example.php` to `config.php` and fill in your own credentials:
    ```php
    $DB_HOST = 'localhost';
-   $DB_NAME = 'deine_datenbank';
-   $DB_USER = 'dein_benutzername';
-   $DB_PASS = 'dein_passwort';
-   $MODERATOR_PASSWORD = 'bitte-aendern';
+   $DB_NAME = 'your_database';
+   $DB_USER = 'your_username';
+   $DB_PASS = 'your_password';
+   $MODERATOR_PASSWORD = 'please-change-me';
    ```
-   `config.php` ist in `.gitignore` eingetragen und wird nie versehentlich mit hochgeladen/committet.
-4. Fertig. Die Moderationsoberfläche liegt unter `moderate.php`.
+   `config.php` is listed in `.gitignore` and will never be accidentally uploaded/committed.
+4. Done. The moderator interface lives at `moderate.php`.
 
-### Kurze Teilnehmer-Links (optional, aber empfohlen)
+### Short participant links (optional but recommended)
 
-Ohne weitere Konfiguration funktionieren die Links als `index.php?code=DEINCODE`. Mit `mod_rewrite` (die mitgelieferte `.htaccess` macht das automatisch) werden daraus kurze Links:
+Without further configuration, links work as `index.php?code=YOURCODE`. With `mod_rewrite` (the included `.htaccess` handles this automatically), these become short links:
 
 ```
-https://deine-domain.de/EF            -> Teilnehmer-Ansicht
-https://deine-domain.de/EF/presenter  -> Presenter-Ansicht (für den Beamer)
+https://your-domain.com/EF            -> participant view
+https://your-domain.com/EF/presenter  -> presenter view (for the projector)
 ```
 
-Falls dein Hosting Apache hinter einem nginx-Proxy betreibt (häufig bei Plesk-Hosting), muss dort ggf. die Option "Statische Dateien direkt durch nginx bedienen" **deaktiviert** und `AllowOverride All` erlaubt sein, damit die `.htaccess` überhaupt greift.
+If your hosting runs Apache behind an nginx proxy (common with Plesk hosting), you may need to disable the "serve static files directly by nginx" option there and allow `AllowOverride All`, or the `.htaccess` won't take effect at all.
 
-## Nutzung
+## Usage
 
-1. **`moderate.php`** aufrufen, mit dem `$MODERATOR_PASSWORD` einloggen.
-2. Eine **Session** anlegen (kurzer Code ohne Leerzeichen/Umlaute, z. B. `vortrag2026`).
-3. Den Teilnehmer-Link bzw. QR-Code teilen.
-4. Eine **Umfrage** anlegen -- Auswahlantworten oder Freitext. Die zuletzt angelegte Umfrage einer Session ist automatisch die aktive.
-5. **Presenter-Link** auf den Beamer/die Leinwand -- zeigt Live-Ergebnisse inklusive QR-Code zum Scannen.
-6. Ergebnisse jeder Umfrage lassen sich unter "Bisherige Umfragen" als CSV mit Zeitstempeln herunterladen.
+1. Open **`moderate.php`** and log in with your `$MODERATOR_PASSWORD`.
+2. Create a **session** (short code, no spaces or special characters, e.g. `talk2026`).
+3. Share the participant link or QR code.
+4. Create a **poll** -- choice answers or free text. The most recently created poll in a session automatically becomes the active one.
+5. Put the **presenter link** on the projector/screen -- shows live results including a QR code to scan.
+6. Results for every poll can be downloaded as timestamped CSV under "Past polls".
 
-## Dateien
+## Files
 
-| Datei | Zweck |
+| File | Purpose |
 |---|---|
-| `schema.sql` | Datenbankstruktur (einmalig importieren) |
-| `migration_*.sql` | Optionale Migrationen für bereits bestehende Installationen |
-| `config.example.php` | Vorlage für `config.php` |
-| `moderate.php` | Verwaltung: Sessions/Umfragen anlegen, löschen, Ergebnisse exportieren |
-| `index.php` | Teilnehmer-Ansicht |
-| `presenter.php` | Ansicht für Beamer/große Bildschirme inkl. QR-Code |
-| `poll.php` | Liefert den aktuellen Stand als JSON (wird per Polling abgefragt) |
-| `submit.php` | Nimmt Umfrage-Antworten entgegen |
-| `export.php` | CSV-Export einer Umfrage |
-| `.htaccess` | Rewrite-Regeln für kurze Links |
+| `schema.sql` | Database structure (import once) |
+| `config.example.php` | Template for `config.php` |
+| `moderate.php` | Admin: create/delete sessions and polls, export results |
+| `index.php` | Participant view |
+| `presenter.php` | View for projector/large screens, incl. QR code |
+| `poll.php` | Returns the current state as JSON (polled by the browser) |
+| `submit.php` | Accepts poll answers |
+| `export.php` | CSV export of a poll |
+| `.htaccess` | Rewrite rules for short links |
 
-## Grenzen
+## Limitations
 
-Das ist bewusst ein sehr einfaches Werkzeug, kein Produkt:
+This is deliberately a very simple tool, not a product:
 
-- Kein Nutzerkonto-System, nur ein geteiltes Moderationspasswort
-- Kein Schutz gegen Mehrfachabstimmen (Absicht, siehe oben)
-- Polling statt WebSockets -- bei sehr vielen gleichzeitigen Teilnehmern (deutlich über einige hundert) müsste das Intervall angepasst oder ein Caching ergänzt werden
-- Kein automatisches HTTPS -- sollte über die Hosting-Einstellungen (z. B. Let's Encrypt) sichergestellt werden
+- No user account system, just a single shared moderator password
+- No protection against multiple votes (intentional, see above)
+- Polling instead of WebSockets -- for very large numbers of simultaneous participants (well over a few hundred), the interval would need adjusting or caching added
+- No automatic HTTPS -- should be ensured via your hosting settings (e.g. Let's Encrypt)
 
-Pull Requests und Issues willkommen.
+Pull requests and issues welcome.
 
-## Lizenz
+## License
 
-MIT, siehe [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).

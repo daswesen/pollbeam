@@ -1,6 +1,6 @@
 <?php $serverCode = $_GET['code'] ?? ''; ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,11 +28,11 @@
   <span id="qr-code-text"></span>
 </div>
 
-<h1 id="session-title">Session wird geladen…</h1>
-<p class="code-hint">Teilnehmer-Link: <span id="code-display"></span></p>
+<h1 id="session-title">Loading session…</h1>
+<p class="code-hint">Participant link: <span id="code-display"></span></p>
 
 <div class="card" id="poll-card" style="display:none;">
-  <div class="poll-badge">UMFRAGE</div>
+  <div class="poll-badge">POLL</div>
   <h2 id="poll-question"></h2>
   <div id="poll-options"></div>
 </div>
@@ -58,10 +58,10 @@ async function refresh() {
     const res = await fetch('/poll.php?code=' + encodeURIComponent(code));
     const data = await res.json();
     if (!data.ok) {
-      document.getElementById('session-title').textContent = 'Fehler: ' + data.error;
+      document.getElementById('session-title').textContent = 'Error: ' + data.error;
       return;
     }
-    document.getElementById('session-title').textContent = data.title || 'Live-Session';
+    document.getElementById('session-title').textContent = data.title || 'Live Session';
 
     const pollCard = document.getElementById('poll-card');
     if (data.poll) {
@@ -72,7 +72,7 @@ async function refresh() {
 
       if (data.poll.type === 'open') {
         if (data.poll.responses.length === 0) {
-          optDiv.innerHTML = '<p style="color:#9ca3af;">Noch keine Antworten</p>';
+          optDiv.innerHTML = '<p style="color:#9ca3af;">No answers yet</p>';
         } else {
           data.poll.responses.forEach(text => {
             const div = document.createElement('div');

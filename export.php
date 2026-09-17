@@ -4,7 +4,7 @@ session_start();
 
 if (empty($_SESSION['is_mod'])) {
     http_response_code(403);
-    echo 'Nicht angemeldet.';
+    echo 'Not logged in.';
     exit;
 }
 
@@ -21,33 +21,33 @@ $poll = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$poll) {
     http_response_code(404);
-    echo 'Umfrage nicht gefunden.';
+    echo 'Poll not found.';
     exit;
 }
 
-$filename = 'umfrage_' . $poll['session_code'] . '_' . date('Y-m-d_His', strtotime($poll['created_at'])) . '.csv';
+$filename = 'poll_' . $poll['session_code'] . '_' . date('Y-m-d_His', strtotime($poll['created_at'])) . '.csv';
 
 header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 
 $out = fopen('php://output', 'w');
-// UTF-8 BOM, damit Excel Umlaute korrekt anzeigt
+// UTF-8 BOM so Excel displays special characters correctly
 fwrite($out, "\xEF\xBB\xBF");
 
 fputcsv($out, ['Session', $poll['session_code']]);
-fputcsv($out, ['Frage', $poll['question']]);
-fputcsv($out, ['Umfrage angelegt am', $poll['created_at']]);
+fputcsv($out, ['Question', $poll['question']]);
+fputcsv($out, ['Poll created at', $poll['created_at']]);
 fputcsv($out, []);
 
 if ($poll['type'] === 'open') {
-    fputcsv($out, ['Antwort', 'Zeitstempel']);
+    fputcsv($out, ['Answer', 'Timestamp']);
     $stmt = $db->prepare("SELECT text, created_at FROM poll_responses WHERE poll_id = ? ORDER BY created_at ASC");
     $stmt->execute([$pollId]);
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
         fputcsv($out, [$row['text'], $row['created_at']]);
     }
 } else {
-    fputcsv($out, ['Option', 'Stimmen']);
+    fputcsv($out, ['Option', 'Votes']);
     $stmt = $db->prepare("SELECT label, votes FROM poll_options WHERE poll_id = ?");
     $stmt->execute([$pollId]);
     foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {

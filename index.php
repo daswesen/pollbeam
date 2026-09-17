@@ -1,6 +1,6 @@
 <?php $serverCode = $_GET['code'] ?? ''; ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,17 +22,17 @@
 </head>
 <body>
 
-<h1 id="session-title">Session wird geladen…</h1>
+<h1 id="session-title">Loading session…</h1>
 
 <div class="card" id="poll-card" style="display:none;">
-  <div class="poll-badge">UMFRAGE</div>
+  <div class="poll-badge">POLL</div>
   <strong id="poll-question"></strong>
   <div id="poll-options"></div>
 </div>
 
 <script>
-// Vom Server ermittelt (funktioniert sowohl bei /EF als auch bei ?code=EF),
-// mit Fallback auf clientseitigen Query-Parameter und zuletzt 'demo'.
+// Determined server-side (works both for /EF and ?code=EF),
+// with a fallback to the client-side query parameter and finally 'demo'.
 const params = new URLSearchParams(window.location.search);
 const code = <?= json_encode($serverCode) ?> || params.get('code') || 'demo';
 let currentOpenPollId = null;
@@ -42,12 +42,12 @@ async function refresh() {
     const res = await fetch('/poll.php?code=' + encodeURIComponent(code));
     const data = await res.json();
     if (!data.ok) {
-      document.getElementById('session-title').textContent = 'Fehler: ' + data.error;
+      document.getElementById('session-title').textContent = 'Error: ' + data.error;
       return;
     }
-    document.getElementById('session-title').textContent = data.title || 'Live-Session';
+    document.getElementById('session-title').textContent = data.title || 'Live Session';
 
-    // Umfrage
+    // Poll
     const pollCard = document.getElementById('poll-card');
     if (data.poll) {
       pollCard.style.display = 'block';
@@ -55,13 +55,13 @@ async function refresh() {
       const optDiv = document.getElementById('poll-options');
 
       if (data.poll.type === 'open') {
-        // Feld nicht neu aufbauen, solange dieselbe Umfrage noch aktiv ist,
-        // sonst geht eingetippter Text beim Refresh verloren.
+        // Don't rebuild the field while the same poll is still active,
+        // otherwise typed text would be lost on refresh.
         if (currentOpenPollId !== data.poll.id) {
           currentOpenPollId = data.poll.id;
           optDiv.innerHTML = `
-            <textarea id="poll-answer-text" rows="2" placeholder="Deine Antwort..." style="margin-top:8px;"></textarea>
-            <button onclick="pollAnswer(${data.poll.id})">Absenden</button>
+            <textarea id="poll-answer-text" rows="2" placeholder="Your answer..." style="margin-top:8px;"></textarea>
+            <button onclick="pollAnswer(${data.poll.id})">Submit</button>
             <div class="msg" id="poll-answer-msg"></div>`;
         }
       } else {
@@ -77,7 +77,7 @@ async function refresh() {
               <div>${escapeHtml(o.label)} (${o.votes})</div>
               <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
             </div>
-            <button onclick="pollVote(${o.id})">Wählen</button>`;
+            <button onclick="pollVote(${o.id})">Vote</button>`;
           optDiv.appendChild(wrap);
         });
       }
@@ -107,7 +107,7 @@ async function pollAnswer(pollId) {
   field.value = '';
   const msg = document.getElementById('poll-answer-msg');
   if (msg) {
-    msg.textContent = 'Danke für deine Antwort!';
+    msg.textContent = 'Thanks for your answer!';
     setTimeout(() => { if (msg) msg.textContent = ''; }, 2000);
   }
 }

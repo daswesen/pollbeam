@@ -6,7 +6,7 @@ $db = getDb();
 $code = trim($_GET['code'] ?? '');
 
 if ($code === '') {
-    echo json_encode(['ok' => false, 'error' => 'Kein Code angegeben']);
+    echo json_encode(['ok' => false, 'error' => 'No code provided']);
     exit;
 }
 
@@ -15,13 +15,13 @@ $stmt->execute([$code]);
 $session = $stmt->fetch();
 
 if (!$session) {
-    echo json_encode(['ok' => false, 'error' => 'Session nicht gefunden']);
+    echo json_encode(['ok' => false, 'error' => 'Session not found']);
     exit;
 }
 
 $sessionId = $session['id'];
 
-// aktive Umfrage inkl. Optionen bzw. Freitext-Antworten
+// active poll incl. options or free-text responses
 $stmt = $db->prepare(
     "SELECT id, question, type FROM polls
      WHERE session_id = ? AND active = 1

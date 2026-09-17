@@ -4,7 +4,7 @@ session_start();
 
 $db = getDb();
 
-// einfacher Login
+// simple login
 if (isset($_POST['login_password'])) {
     if ($_POST['login_password'] === $MODERATOR_PASSWORD) {
         $_SESSION['is_mod'] = true;
@@ -19,19 +19,19 @@ if (!empty($_GET['logout'])) {
 if (empty($_SESSION['is_mod'])) {
     ?>
     <!DOCTYPE html>
-    <html lang="de"><head><meta charset="UTF-8"><title>PollBeam – Login</title></head>
+    <html lang="en"><head><meta charset="UTF-8"><title>PollBeam – Login</title></head>
     <body style="font-family: sans-serif; max-width: 400px; margin: 100px auto;">
-        <h2>Moderation Login</h2>
+        <h2>Moderator Login</h2>
         <form method="post">
-            <input type="password" name="login_password" placeholder="Passwort" style="padding:8px; width:100%;">
-            <button type="submit" style="margin-top:10px; padding:8px 16px;">Einloggen</button>
+            <input type="password" name="login_password" placeholder="Password" style="padding:8px; width:100%;">
+            <button type="submit" style="margin-top:10px; padding:8px 16px;">Log in</button>
         </form>
     </body></html>
     <?php
     exit;
 }
 
-// Aktionen (nach Login)
+// Actions (after login)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['new_session_code'])) {
         $stmt = $db->prepare("INSERT INTO sessions (code, title) VALUES (?, ?)");
@@ -68,7 +68,7 @@ $polls = $db->query(
 $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>PollBeam – Moderation</title>
@@ -86,19 +86,19 @@ input, textarea { padding: 6px; width: 100%; box-sizing: border-box; }
 </head>
 <body>
 
-<p><a href="?logout=1">Abmelden</a></p>
+<p><a href="?logout=1">Log out</a></p>
 
-<h2>Neue Session anlegen</h2>
+<h2>Create new session</h2>
 <form method="post">
-    <div class="field"><input name="new_session_code" placeholder="Kurzer Code ohne Leerzeichen, z.B. ef2026" required></div>
-    <div class="field"><input name="new_session_title" placeholder="Titel (optional)"></div>
-    <button type="submit">Anlegen</button>
+    <div class="field"><input name="new_session_code" placeholder="Short code without spaces, e.g. talk2026" required></div>
+    <div class="field"><input name="new_session_title" placeholder="Title (optional)"></div>
+    <button type="submit">Create</button>
 </form>
-<p style="color:#666; font-size:0.9em;">Tipp: kurzer Code ohne Leerzeichen/Umlaute (z.B. <code>ef2026</code>) ergibt den kürzesten Teilnehmer-Link.</p>
+<p style="color:#666; font-size:0.9em;">Tip: a short code without spaces or special characters (e.g. <code>talk2026</code>) gives you the shortest participant link.</p>
 
 <h2>Sessions</h2>
 <table>
-<tr><th>Code</th><th>Titel</th><th>Teilnehmer-Link</th><th>QR-Code</th><th>Presenter-Link</th><th>Aktion</th></tr>
+<tr><th>Code</th><th>Title</th><th>Participant link</th><th>QR code</th><th>Presenter link</th><th>Action</th></tr>
 <?php foreach ($sessions as $s):
     $shortUrl = $baseUrl . '/' . rawurlencode($s['code']);
     $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' . urlencode($shortUrl);
@@ -109,19 +109,19 @@ input, textarea { padding: 6px; width: 100%; box-sizing: border-box; }
     <td>
         <a href="<?= htmlspecialchars($shortUrl) ?>" target="_blank"><?= htmlspecialchars($shortUrl) ?></a>
     </td>
-    <td><img src="<?= htmlspecialchars($qrUrl) ?>" alt="QR-Code" width="90" height="90"></td>
+    <td><img src="<?= htmlspecialchars($qrUrl) ?>" alt="QR code" width="90" height="90"></td>
     <td><a href="<?= htmlspecialchars($baseUrl . '/' . rawurlencode($s['code']) . '/presenter') ?>" target="_blank">Presenter</a></td>
     <td>
-        <form class="inline" method="post" onsubmit="return confirm('Session &quot;<?= htmlspecialchars(addslashes($s['code'])) ?>&quot; wirklich löschen? Alle zugehörigen Fragen und Umfragen werden mitgelöscht.');">
+        <form class="inline" method="post" onsubmit="return confirm('Really delete session &quot;<?= htmlspecialchars(addslashes($s['code'])) ?>&quot;? All related polls will be deleted too.');">
             <input type="hidden" name="delete_session" value="<?= $s['id'] ?>">
-            <button type="submit" style="background:#dc2626; color:white;">Löschen</button>
+            <button type="submit" style="background:#dc2626; color:white;">Delete</button>
         </form>
     </td>
 </tr>
 <?php endforeach; ?>
 </table>
 
-<h2>Neue Umfrage anlegen</h2>
+<h2>Create new poll</h2>
 <form method="post">
     <div class="field">
         <select name="new_poll_session_id" required>
@@ -130,32 +130,32 @@ input, textarea { padding: 6px; width: 100%; box-sizing: border-box; }
             <?php endforeach; ?>
         </select>
     </div>
-    <div class="field"><input name="new_poll_question" placeholder="Frage" required></div>
+    <div class="field"><input name="new_poll_question" placeholder="Question" required></div>
     <div class="field">
-        <label><input type="radio" name="new_poll_type" value="choice" checked onclick="document.getElementById('poll-options-field').style.display='block'"> Auswahlantworten</label>
+        <label><input type="radio" name="new_poll_type" value="choice" checked onclick="document.getElementById('poll-options-field').style.display='block'"> Choice answers</label>
         &nbsp;&nbsp;
-        <label><input type="radio" name="new_poll_type" value="open" onclick="document.getElementById('poll-options-field').style.display='none'"> Freie Texteingabe</label>
+        <label><input type="radio" name="new_poll_type" value="open" onclick="document.getElementById('poll-options-field').style.display='none'"> Free text</label>
     </div>
-    <div class="field" id="poll-options-field"><textarea name="new_poll_options" placeholder="Antwortoptionen, eine pro Zeile" rows="4"></textarea></div>
-    <button type="submit">Umfrage anlegen (wird sofort aktiv)</button>
+    <div class="field" id="poll-options-field"><textarea name="new_poll_options" placeholder="Answer options, one per line" rows="4"></textarea></div>
+    <button type="submit">Create poll (becomes active immediately)</button>
 </form>
-<p style="color:#666; font-size:0.9em;">Hinweis: Eine neue Umfrage wird automatisch die aktive Umfrage der Session (letzte gewinnt).</p>
+<p style="color:#666; font-size:0.9em;">Note: a new poll automatically becomes the active poll for that session (the most recent one wins).</p>
 
-<h2>Bisherige Umfragen</h2>
+<h2>Past polls</h2>
 <table>
-<tr><th>Datum/Zeit</th><th>Session</th><th>Frage</th><th>Typ</th><th>Status</th><th>Export</th></tr>
+<tr><th>Date/Time</th><th>Session</th><th>Question</th><th>Type</th><th>Status</th><th>Export</th></tr>
 <?php foreach ($polls as $p): ?>
 <tr>
     <td><?= htmlspecialchars($p['created_at']) ?></td>
     <td><?= htmlspecialchars($p['session_code']) ?></td>
     <td><?= htmlspecialchars($p['question']) ?></td>
-    <td><?= $p['type'] === 'open' ? 'Freitext' : 'Auswahl' ?></td>
-    <td><?= $p['active'] ? 'aktiv' : '—' ?></td>
-    <td><a href="export.php?poll_id=<?= $p['id'] ?>">CSV herunterladen</a></td>
+    <td><?= $p['type'] === 'open' ? 'Free text' : 'Choice' ?></td>
+    <td><?= $p['active'] ? 'active' : '—' ?></td>
+    <td><a href="export.php?poll_id=<?= $p['id'] ?>">Download CSV</a></td>
 </tr>
 <?php endforeach; ?>
 <?php if (empty($polls)): ?>
-<tr><td colspan="6" style="color:#666;">Noch keine Umfragen angelegt.</td></tr>
+<tr><td colspan="6" style="color:#666;">No polls yet.</td></tr>
 <?php endif; ?>
 </table>
 

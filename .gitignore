@@ -1,6 +1,6 @@
-# Enthält echte Zugangsdaten -- niemals committen
+# Contains real credentials -- never commit
 config.php
 
-# Diverses
+# Misc
 .DS_Store
 *.log

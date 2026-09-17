@@ -1,5 +1,5 @@
--- PollBeam Datenbankschema
--- Import z.B. über phpMyAdmin bei netcup
+-- PollBeam database schema
+-- Import e.g. via phpMyAdmin
 
 CREATE TABLE IF NOT EXISTS sessions (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS poll_options (
     FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE
 );
 
--- Freitext-Antworten bei Umfragen vom Typ 'open'
+-- Free-text answers for polls of type 'open'
 CREATE TABLE IF NOT EXISTS poll_responses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     poll_id INT NOT NULL,
@@ -35,5 +35,5 @@ CREATE TABLE IF NOT EXISTS poll_responses (
     FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE
 );
 
--- Beispiel-Session zum Testen
-INSERT INTO sessions (code, title) VALUES ('demo', 'Test-Session');
+-- Example session for testing
+INSERT INTO sessions (code, title) VALUES ('demo', 'Test Session');

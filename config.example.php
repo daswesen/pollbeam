@@ -1,14 +1,14 @@
 <?php
-// Kopiere diese Datei nach config.php und trag deine eigenen Zugangsdaten ein.
-// config.php ist in .gitignore und wird NICHT ins Repository übernommen.
+// Copy this file to config.php and fill in your own credentials.
+// config.php is listed in .gitignore and will NOT be committed to the repository.
 
 $DB_HOST = 'localhost';
-$DB_NAME = 'deine_datenbank';
-$DB_USER = 'dein_benutzername';
-$DB_PASS = 'dein_passwort';
+$DB_NAME = 'your_database';
+$DB_USER = 'your_username';
+$DB_PASS = 'your_password';
 
-// Passwort für die Moderationsseite (moderate.php) -- unbedingt ändern!
-$MODERATOR_PASSWORD = 'bitte-aendern';
+// Password for the moderator page (moderate.php) -- make sure to change this!
+$MODERATOR_PASSWORD = 'please-change-me';
 
 function getDb() {
     global $DB_HOST, $DB_NAME, $DB_USER, $DB_PASS;

@@ -10,7 +10,7 @@ if ($action === 'poll_answer') {
     $text = trim($_POST['text'] ?? '');
 
     if ($pollId <= 0 || $text === '') {
-        echo json_encode(['ok' => false, 'error' => 'Fehlende Angaben']);
+        echo json_encode(['ok' => false, 'error' => 'Missing data']);
         exit;
     }
 
@@ -23,7 +23,7 @@ if ($action === 'poll_answer') {
 if ($action === 'poll_vote') {
     $optionId = (int)($_POST['option_id'] ?? 0);
     if ($optionId <= 0) {
-        echo json_encode(['ok' => false, 'error' => 'Ungültige Option']);
+        echo json_encode(['ok' => false, 'error' => 'Invalid option']);
         exit;
     }
 
@@ -33,4 +33,4 @@ if ($action === 'poll_vote') {
     exit;
 }
 
-echo json_encode(['ok' => false, 'error' => 'Unbekannte Aktion']);
+echo json_encode(['ok' => false, 'error' => 'Unknown action']);
