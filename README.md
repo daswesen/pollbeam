@@ -8,6 +8,10 @@ Two poll types:
 
 Multiple submissions per participant are allowed by design -- there's no lock against voting more than once.
 
+Other features:
+- **Per-session language** -- each session's participant/presenter interface can be set to English or German (the questions you type are never translated, only the surrounding UI text)
+- **Reusable question templates** -- save a recurring question once (e.g. a standard intro or outro question) and activate it into any session with one click, instead of retyping it live
+
 ## Why
 
 For occasional use in a lecture or talk, a very simple tool is enough. If you already have web space, there's no need to subscribe to another cloud service or set up Node.js for it.
@@ -23,7 +27,7 @@ Tested on ordinary netcup/Plesk shared hosting, but should run on any classic PH
 ## Installation
 
 1. Clone the repository or upload the files to a folder on your web space via FTP.
-2. Create a MySQL database and import `schema.sql` (e.g. via phpMyAdmin).
+2. Create a MySQL database and import `schema.sql` (e.g. via phpMyAdmin). If you're upgrading an existing installation instead, run `migration_001_language_and_templates.sql` once against your existing database.
 3. Copy `config.example.php` to `config.php` and fill in your own credentials:
    ```php
    $DB_HOST = 'localhost';
@@ -49,19 +53,22 @@ If your hosting runs Apache behind an nginx proxy (common with Plesk hosting), y
 ## Usage
 
 1. Open **`moderate.php`** and log in with your `$MODERATOR_PASSWORD`.
-2. Create a **session** (short code, no spaces or special characters, e.g. `talk2026`).
+2. Create a **session** (short code, no spaces or special characters, e.g. `talk2026`; pick English or German for the interface).
 3. Share the participant link or QR code.
 4. Create a **poll** -- choice answers or free text. The most recently created poll in a session automatically becomes the active one.
-5. Put the **presenter link** on the projector/screen -- shows live results including a QR code to scan.
-6. Results for every poll can be downloaded as timestamped CSV under "Past polls".
+5. Optionally, save a recurring question as a **template** once, then activate it into any session with one click instead of retyping it.
+6. Put the **presenter link** on the projector/screen -- shows live results including a QR code to scan.
+7. Under **Results** you can view each poll's answers or votes, download them as timestamped CSV (per poll, per session, or everything in one file), and delete polls (and, under Sessions, whole sessions) you no longer need.
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `schema.sql` | Database structure (import once) |
+| `schema.sql` | Database structure (import once, for a fresh install) |
+| `migration_001_language_and_templates.sql` | Migration for existing installations (adds language + templates) |
 | `config.example.php` | Template for `config.php` |
-| `moderate.php` | Admin: create/delete sessions and polls, export results |
+| `i18n.php` | UI text dictionary (EN/DE) for the participant/presenter interface |
+| `moderate.php` | Admin with a sidebar: sessions, create poll, templates, results (view, export, delete) |
 | `index.php` | Participant view |
 | `presenter.php` | View for projector/large screens, incl. QR code |
 | `poll.php` | Returns the current state as JSON (polled by the browser) |

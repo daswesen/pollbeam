@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS sessions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(20) NOT NULL UNIQUE,
     title VARCHAR(255) DEFAULT '',
+    language ENUM('de', 'en') NOT NULL DEFAULT 'en',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -33,6 +34,16 @@ CREATE TABLE IF NOT EXISTS poll_responses (
     text TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE
+);
+
+-- Reusable question templates (e.g. the same intro/outro question every time)
+CREATE TABLE IF NOT EXISTS poll_templates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    question VARCHAR(500) NOT NULL,
+    type ENUM('choice', 'open') NOT NULL DEFAULT 'choice',
+    options_text TEXT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Example session for testing

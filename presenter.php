@@ -1,6 +1,14 @@
-<?php $serverCode = $_GET['code'] ?? ''; ?>
+<?php
+require 'config.php';
+require 'i18n.php';
+
+$serverCode = $_GET['code'] ?? '';
+$db = getDb();
+$language = pollbeamSessionLanguage($db, $serverCode !== '' ? $serverCode : 'demo');
+$t = pollbeamTranslations()[$language];
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $language ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,15 +32,15 @@
 <body>
 
 <div class="qr-box" id="qr-box" style="display:none;">
-  <img id="qr-img" src="" alt="QR-Code" width="260" height="260">
+  <img id="qr-img" src="" alt="QR code" width="260" height="260">
   <span id="qr-code-text"></span>
 </div>
 
-<h1 id="session-title">Loading session…</h1>
-<p class="code-hint">Participant link: <span id="code-display"></span></p>
+<h1 id="session-title"><?= htmlspecialchars($t['loading']) ?></h1>
+<p class="code-hint"><?= htmlspecialchars($t['participantLink']) ?> <span id="code-display"></span></p>
 
 <div class="card" id="poll-card" style="display:none;">
-  <div class="poll-badge">POLL</div>
+  <div class="poll-badge"><?= htmlspecialchars($t['pollBadge']) ?></div>
   <h2 id="poll-question"></h2>
   <div id="poll-options"></div>
 </div>
@@ -40,6 +48,7 @@
 <script>
 const params = new URLSearchParams(window.location.search);
 const code = <?= json_encode($serverCode) ?> || params.get('code') || 'demo';
+const i18n = <?= json_encode($t) ?>;
 
 const shortLink = window.location.origin + '/' + encodeURIComponent(code);
 document.getElementById('code-display').textContent = shortLink;
@@ -58,10 +67,10 @@ async function refresh() {
     const res = await fetch('/poll.php?code=' + encodeURIComponent(code));
     const data = await res.json();
     if (!data.ok) {
-      document.getElementById('session-title').textContent = 'Error: ' + data.error;
+      document.getElementById('session-title').textContent = i18n.errorPrefix + data.error;
       return;
     }
-    document.getElementById('session-title').textContent = data.title || 'Live Session';
+    document.getElementById('session-title').textContent = data.title || i18n.liveSession;
 
     const pollCard = document.getElementById('poll-card');
     if (data.poll) {
@@ -72,7 +81,7 @@ async function refresh() {
 
       if (data.poll.type === 'open') {
         if (data.poll.responses.length === 0) {
-          optDiv.innerHTML = '<p style="color:#9ca3af;">No answers yet</p>';
+          optDiv.innerHTML = `<p style="color:#9ca3af;">${escapeHtml(i18n.noAnswersYet)}</p>`;
         } else {
           data.poll.responses.forEach(text => {
             const div = document.createElement('div');

@@ -1,6 +1,14 @@
-<?php $serverCode = $_GET['code'] ?? ''; ?>
+<?php
+require 'config.php';
+require 'i18n.php';
+
+$serverCode = $_GET['code'] ?? '';
+$db = getDb();
+$language = pollbeamSessionLanguage($db, $serverCode !== '' ? $serverCode : 'demo');
+$t = pollbeamTranslations()[$language];
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $language ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,10 +30,10 @@
 </head>
 <body>
 
-<h1 id="session-title">Loading session…</h1>
+<h1 id="session-title"><?= htmlspecialchars($t['loading']) ?></h1>
 
 <div class="card" id="poll-card" style="display:none;">
-  <div class="poll-badge">POLL</div>
+  <div class="poll-badge"><?= htmlspecialchars($t['pollBadge']) ?></div>
   <strong id="poll-question"></strong>
   <div id="poll-options"></div>
 </div>
@@ -35,6 +43,7 @@
 // with a fallback to the client-side query parameter and finally 'demo'.
 const params = new URLSearchParams(window.location.search);
 const code = <?= json_encode($serverCode) ?> || params.get('code') || 'demo';
+const i18n = <?= json_encode($t) ?>;
 let currentOpenPollId = null;
 
 async function refresh() {
@@ -42,10 +51,10 @@ async function refresh() {
     const res = await fetch('/poll.php?code=' + encodeURIComponent(code));
     const data = await res.json();
     if (!data.ok) {
-      document.getElementById('session-title').textContent = 'Error: ' + data.error;
+      document.getElementById('session-title').textContent = i18n.errorPrefix + data.error;
       return;
     }
-    document.getElementById('session-title').textContent = data.title || 'Live Session';
+    document.getElementById('session-title').textContent = data.title || i18n.liveSession;
 
     // Poll
     const pollCard = document.getElementById('poll-card');
@@ -60,8 +69,8 @@ async function refresh() {
         if (currentOpenPollId !== data.poll.id) {
           currentOpenPollId = data.poll.id;
           optDiv.innerHTML = `
-            <textarea id="poll-answer-text" rows="2" placeholder="Your answer..." style="margin-top:8px;"></textarea>
-            <button onclick="pollAnswer(${data.poll.id})">Submit</button>
+            <textarea id="poll-answer-text" rows="2" placeholder="${escapeHtml(i18n.yourAnswerPlaceholder)}" style="margin-top:8px;"></textarea>
+            <button onclick="pollAnswer(${data.poll.id})">${escapeHtml(i18n.submit)}</button>
             <div class="msg" id="poll-answer-msg"></div>`;
         }
       } else {
@@ -77,7 +86,7 @@ async function refresh() {
               <div>${escapeHtml(o.label)} (${o.votes})</div>
               <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
             </div>
-            <button onclick="pollVote(${o.id})">Vote</button>`;
+            <button onclick="pollVote(${o.id})">${escapeHtml(i18n.vote)}</button>`;
           optDiv.appendChild(wrap);
         });
       }
@@ -107,7 +116,7 @@ async function pollAnswer(pollId) {
   field.value = '';
   const msg = document.getElementById('poll-answer-msg');
   if (msg) {
-    msg.textContent = 'Thanks for your answer!';
+    msg.textContent = i18n.thanksAnswer;
     setTimeout(() => { if (msg) msg.textContent = ''; }, 2000);
   }
 }
